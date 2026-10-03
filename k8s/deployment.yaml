@@ -18,9 +18,23 @@ spec:
         app: employee-api
 
     spec:
+      securityContext:
+        runAsNonRoot: true
+
       containers:
         - name: employee-api
-          image: gost0proxy/employee-management-api:1.4
+          image: gost0proxy/employee-management-api:1.5
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
 
           env:
             - name: APP_ENV
@@ -28,11 +42,13 @@ spec:
                 configMapKeyRef:
                   name: employee-api-config
                   key: APP_ENV
+
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
                   name: employee-api-secret
                   key: API_KEY
+
           ports:
             - containerPort: 5000
 
@@ -57,3 +73,7 @@ spec:
             limits:
               cpu: "500m"
               memory: "256Mi"
+
+      volumes:
+        - name: tmp
+          emptyDir: {}
