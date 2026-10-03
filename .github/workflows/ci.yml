@@ -34,9 +34,15 @@ jobs:
 
       - name: Validate Kubernetes manifests
         run: |
-          kubectl apply --dry-run=client --validate=false \
-            -f k8s/configmap.yaml \
-            -f k8s/deployment.yaml \
-            -f k8s/service.yaml \
-            -f k8s/hpa.yaml \
-            -f k8s/secret.example.yaml
+          curl -L -o kubeconform.tar.gz \
+            https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz
+          tar -xzf kubeconform.tar.gz kubeconform
+          chmod +x kubeconform
+          ./kubeconform \
+            -strict \
+            -summary \
+            k8s/configmap.yaml \
+            k8s/deployment.yaml \
+            k8s/service.yaml \
+            k8s/hpa.yaml \
+            k8s/secret.example.yaml
